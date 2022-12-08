@@ -226,7 +226,7 @@ test('Counted unique types are sorted', countRealTypes([{}, null, true, !null, !
 ]);
 
 // Add several positive and negative tests
-/*
+
 const everyItemIsNaN = (arr) => {
     // Return true if all items are NaN
     return arr.every((i) => getRealType(i) === 'NaN');
@@ -250,4 +250,3 @@ test('Has String', everyItemIsFinite([123, 113.2, '123']), false);
 test('Has Infinity', everyItemIsFinite([123, 113.2, Infinity]), false);
 
 test('Has NaN', everyItemIsFinite([NaN, 123]), false);
-*/
