@@ -18,7 +18,7 @@ const arraysAreEqual = (a, b) => {
 // Function takes primitimes as well as arrays as arguments
 const test = (whatWeTest, actualResult, expectedResult) => {
     const areEqualRes =
-        typeof actualResult === 'object' && typeof expectedResult === 'object'
+        Array.isArray(actualResult) && Array.isArray(expectedResult)
             ? arraysAreEqual(actualResult, expectedResult)
             : areEqual(actualResult, expectedResult);
 
@@ -48,7 +48,8 @@ const getTypesOfItems = (arr) => {
 
 const allItemsHaveTheSameType = (arr) => {
     // Return true if all items of array have the same type
-    return arr.every((i) => getType(i) === getType(arr[0]));
+    const typeOfFirstEl = getType(arr[0]);
+    return arr.every((i) => getType(i) === typeOfFirstEl);
 };
 
 const getRealType = (value) => {
@@ -74,7 +75,7 @@ const getRealType = (value) => {
 
 const getRealTypesOfItems = (arr) => {
     // Return array with real types of items of given array
-    return arr.map((element) => getRealType(element));
+    return arr.map((item) => getRealType(item));
 };
 
 const everyItemHasAUniqueRealType = (arr) => {
@@ -97,8 +98,10 @@ const countRealTypes = (arr) => {
             resultData[type] = resultData[type] += 1;
         }
     });
-    const result = Object.keys(resultData).map((key) => [key, resultData[key]]);
-    result.sort(([a], [b]) => (a[0] < b[0] ? -1 : 1));
+    const result = Object.keys(resultData)
+        .sort()
+        .map((key) => [key, resultData[key]]);
+
     return result;
 };
 
