@@ -1,7 +1,5 @@
 // Test utils
 
-const { check } = require('prettier');
-
 const testBlock = (name) => {
     console.groupEnd();
     console.group(`# ${name}\n`);
@@ -17,14 +15,14 @@ const arraysAreEqual = (a, b) => {
     return JSON.stringify(a) === JSON.stringify(b);
 };
 
-//Function is updated to take arrays as arguments
+// Function takes primitimes as well as arrays as arguments
 const test = (whatWeTest, actualResult, expectedResult) => {
-    const actualResultArr = actualResult ? [].concat(actualResult) : [];
-    const expectedResultArr = expectedResult ? [].concat(expectedResult) : [];
+    const areEqualRes =
+        typeof actualResult === 'object' && typeof expectedResult === 'object'
+            ? arraysAreEqual(actualResult, expectedResult)
+            : areEqual(actualResult, expectedResult);
 
-    // if (areEqual(actualResult, expectedResult)) {
-    //     console.log(`[OK] ${whatWeTest}\n`);
-    if (arraysAreEqual(actualResultArr, expectedResultArr)) {
+    if (areEqualRes) {
         console.log(`[OK] ${whatWeTest}\n`);
     } else {
         console.error(`[FAIL] ${whatWeTest}`);
@@ -45,12 +43,12 @@ const getType = (value) => {
 
 const getTypesOfItems = (arr) => {
     // Return array with types of items of given array
-    return arr.map((i) => typeof i);
+    return arr.map((i) => getType(i));
 };
 
 const allItemsHaveTheSameType = (arr) => {
     // Return true if all items of array have the same type
-    return arr.every((i) => typeof i === typeof arr[0]);
+    return arr.every((i) => getType(i) === getType(arr[0]));
 };
 
 const getRealType = (value) => {
@@ -62,18 +60,21 @@ const getRealType = (value) => {
     //     getRealType(NaN)        // 'NaN'
     // Use typeof, instanceof and some magic. It's enough to have
     // 12-13 unique types but you can find out in JS even more :)
-    if (Number.isNaN(value)) return 'NaN';
-    if (typeof value === 'number' && !isFinite(value)) return 'Infinity';
-    else
-        return {}.toString
-            .call(value)
-            .match(/\s([a-zA-Z]+)/)[1]
-            .toLowerCase();
+    if (Number.isNaN(value)) {
+        return 'NaN';
+    }
+    if (typeof value === 'number' && !isFinite(value)) {
+        return 'Infinity';
+    }
+    return Object.prototype.toString
+        .call(value)
+        .match(/\s([a-zA-Z]+)/)[1]
+        .toLowerCase();
 };
 
 const getRealTypesOfItems = (arr) => {
     // Return array with real types of items of given array
-    return arr.map((i) => getRealType(i));
+    return arr.map((element) => getRealType(element));
 };
 
 const everyItemHasAUniqueRealType = (arr) => {
@@ -87,14 +88,16 @@ const countRealTypes = (arr) => {
     // Return an array of arrays with a type and count of items
     // with this type in the input array, sorted by type.
     // Like an Object.entries() result: [['boolean', 3], ['string', 5]]
-    const resultMap = new Map();
+    const resultData = {};
     arr.forEach((elem) => {
-        let type = getRealType(elem);
-        let count = resultMap.get(type);
-        if (!count) resultMap.set(type, 1);
-        else resultMap.set(type, count + 1);
+        const type = getRealType(elem);
+        if (!resultData[type]) {
+            resultData[type] = 1;
+        } else {
+            resultData[type] = resultData[type] += 1;
+        }
     });
-    const result = Array.from(resultMap);
+    const result = Object.keys(resultData).map((key) => [key, resultData[key]]);
     result.sort(([a], [b]) => (a[0] < b[0] ? -1 : 1));
     return result;
 };
@@ -126,7 +129,7 @@ test(
     'All values are strings but wait',
     allItemsHaveTheSameType(['11', new String('12'), '13']),
     // What the result?
-    //Result is "false" as "new String()" expression is an object
+    // Result is "false" as "new String()" expression is an object
     false
 );
 
@@ -134,19 +137,13 @@ test(
     'Values like a number',
     allItemsHaveTheSameType([123, 123 / 'a', 1 / 0]),
     // What the result?
-    //Result is "true" as NaN is numeric type
+    // Result is "true" as NaN is numeric type
     true
 );
 
 test('Values like an object', allItemsHaveTheSameType([{}]), true);
 
 testBlock('getTypesOfItems VS getRealTypesOfItems');
-
-let testUndefined;
-
-const testMap = new Map();
-testMap.set(0, 'zero');
-testMap.set(1, 'one');
 
 const knownTypes = [
     // Add values of different types like boolean, object, date, NaN and so on
@@ -156,14 +153,14 @@ const knownTypes = [
     [1, 2, 3],
     { id: 1 },
     (x) => x * 2,
-    testUndefined,
+    undefined,
     null,
     'a' / 3,
     1 / 0,
     new Date('2020-05-12T23:50:21.817Z'),
     /[abcd]+/,
     new Set([1, 2, 3, 4]),
-    testMap,
+    new Map(),
 ];
 
 test('Check basic types', getTypesOfItems(knownTypes), [
