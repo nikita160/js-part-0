@@ -1,23 +1,23 @@
 // Test utils
 
-const testBlock = (name) => {
+const testBlock = (name: string): void => {
     console.groupEnd();
     console.group(`# ${name}\n`);
 };
 
-const areEqual = (a, b) => {
+const areEqual = (a: any, b: any): boolean => {
     return a === b;
     // Compare arrays of primitives
     // Remember: [] !== []
 };
 
-const arraysAreEqual = (a, b) => {
+const arraysAreEqual = (a: any[], b: any[]): boolean => {
     return JSON.stringify(a) === JSON.stringify(b);
 };
 
 // Function takes primitimes as well as arrays as arguments
-const test = (whatWeTest, actualResult, expectedResult) => {
-    const areEqualRes =
+const test = (whatWeTest: string, actualResult: any, expectedResult: any): void => {
+    const areEqualRes: boolean =
         Array.isArray(actualResult) && Array.isArray(expectedResult)
             ? arraysAreEqual(actualResult, expectedResult)
             : areEqual(actualResult, expectedResult);
@@ -36,23 +36,23 @@ const test = (whatWeTest, actualResult, expectedResult) => {
 
 // Functions
 
-const getType = (value) => {
+const getType = (value: any): string => {
     // Return string with a native JS type of value
     return typeof value;
 };
 
-const getTypesOfItems = (arr) => {
+const getTypesOfItems = (arr: any): string[] => {
     // Return array with types of items of given array
-    return arr.map((i) => getType(i));
+    return arr.map((item: any) => getType(item));
 };
 
-const allItemsHaveTheSameType = (arr) => {
+const allItemsHaveTheSameType = (arr: any): boolean => {
     // Return true if all items of array have the same type
     const typeOfFirstEl = getType(arr[0]);
-    return arr.every((i) => getType(i) === typeOfFirstEl);
+    return arr.every((item: any) => getType(item) === typeOfFirstEl);
 };
 
-const getRealType = (value) => {
+const getRealType = (value: any): string => {
     // Return string with a “real” type of value.
     // For example:
     //     typeof new Date()       // 'object'
@@ -67,40 +67,41 @@ const getRealType = (value) => {
     if (typeof value === 'number' && !isFinite(value)) {
         return 'Infinity';
     }
-    return Object.prototype.toString
-        .call(value)
-        .match(/\s([a-zA-Z]+)/)[1]
-        .toLowerCase();
+
+    return Object.prototype.toString.call(value).split(' ')[1].slice(0, -1).toLowerCase();
 };
 
-const getRealTypesOfItems = (arr) => {
+const getRealTypesOfItems = (arr: any[]): string[] => {
     // Return array with real types of items of given array
-    return arr.map((item) => getRealType(item));
+    return arr.map((item: any) => getRealType(item));
 };
 
-const everyItemHasAUniqueRealType = (arr) => {
+const everyItemHasAUniqueRealType = (arr: any[]): boolean => {
     // Return true if there are no items in array
     // with the same real type
-    const realTypesArray = getRealTypesOfItems(arr);
+    const realTypesArray: string[] = getRealTypesOfItems(arr);
     return new Set(realTypesArray).size === realTypesArray.length;
 };
 
-const countRealTypes = (arr) => {
+const countRealTypes = (arr: any[]): [string, number][] => {
     // Return an array of arrays with a type and count of items
     // with this type in the input array, sorted by type.
     // Like an Object.entries() result: [['boolean', 3], ['string', 5]]
-    const resultData = {};
-    arr.forEach((elem) => {
-        const type = getRealType(elem);
+    interface iResultData {
+        [key: string]: number;
+    }
+    const resultData: iResultData = {};
+    arr.forEach((elem: any) => {
+        const type: string = getRealType(elem);
         if (!resultData[type]) {
             resultData[type] = 1;
         } else {
-            resultData[type] = resultData[type] += 1;
+            resultData[type] = resultData[type] + 1;
         }
     });
-    const result = Object.keys(resultData)
+    const result: [string, number][] = Object.keys(resultData)
         .sort()
-        .map((key) => [key, resultData[key]]);
+        .map((key: string) => [key, resultData[key]]);
 
     return result;
 };
@@ -155,7 +156,7 @@ const knownTypes = [
     'abcde',
     [1, 2, 3],
     { id: 1 },
-    (x) => x * 2,
+    (x: number) => x * 2,
     undefined,
     null,
     'a' / 3,
@@ -227,14 +228,14 @@ test('Counted unique types are sorted', countRealTypes([{}, null, true, !null, !
 
 // Add several positive and negative tests
 
-const everyItemIsNaN = (arr) => {
+const everyItemIsNaN = (arr: any[]) => {
     // Return true if all items are NaN
-    return arr.every((i) => getRealType(i) === 'NaN');
+    return arr.every((item: any) => getRealType(item) === 'NaN');
 };
 
-const everyItemIsFinite = (arr) => {
+const everyItemIsFinite = (arr: any[]) => {
     // Return true if all items are finite
-    return arr.every((i) => Number.isFinite(i));
+    return arr.every((item: any) => Number.isFinite(item));
 };
 
 testBlock('myTestAllAreNaN');
