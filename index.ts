@@ -5,18 +5,18 @@ const testBlock = (name: string): void => {
     console.group(`# ${name}\n`);
 };
 
-const areEqual = (a: any, b: any): boolean => {
+const areEqual = (a: unknown, b: unknown): boolean => {
     return a === b;
     // Compare arrays of primitives
     // Remember: [] !== []
 };
 
-const arraysAreEqual = (a: any[], b: any[]): boolean => {
+const arraysAreEqual = (a: unknown[], b: unknown[]): boolean => {
     return JSON.stringify(a) === JSON.stringify(b);
 };
 
 // Function takes primitimes as well as arrays as arguments
-const test = (whatWeTest: string, actualResult: any, expectedResult: any): void => {
+const test = (whatWeTest: string, actualResult: unknown, expectedResult: unknown): void => {
     const areEqualRes: boolean =
         Array.isArray(actualResult) && Array.isArray(expectedResult)
             ? arraysAreEqual(actualResult, expectedResult)
@@ -36,23 +36,23 @@ const test = (whatWeTest: string, actualResult: any, expectedResult: any): void 
 
 // Functions
 
-const getType = (value: any): string => {
+const getType = (value: unknown): string => {
     // Return string with a native JS type of value
     return typeof value;
 };
 
-const getTypesOfItems = (arr: any): string[] => {
+const getTypesOfItems = (arr: unknown[]): string[] => {
     // Return array with types of items of given array
-    return arr.map((item: any) => getType(item));
+    return arr.map((item: unknown) => getType(item));
 };
 
-const allItemsHaveTheSameType = (arr: any): boolean => {
+const allItemsHaveTheSameType = (arr: unknown[]): boolean => {
     // Return true if all items of array have the same type
     const typeOfFirstEl = getType(arr[0]);
-    return arr.every((item: any) => getType(item) === typeOfFirstEl);
+    return arr.every((item: unknown) => getType(item) === typeOfFirstEl);
 };
 
-const getRealType = (value: any): string => {
+const getRealType = (value: unknown): string => {
     // Return string with a “real” type of value.
     // For example:
     //     typeof new Date()       // 'object'
@@ -71,19 +71,19 @@ const getRealType = (value: any): string => {
     return Object.prototype.toString.call(value).split(' ')[1].slice(0, -1).toLowerCase();
 };
 
-const getRealTypesOfItems = (arr: any[]): string[] => {
+const getRealTypesOfItems = (arr: unknown[]): string[] => {
     // Return array with real types of items of given array
-    return arr.map((item: any) => getRealType(item));
+    return arr.map((item: unknown) => getRealType(item));
 };
 
-const everyItemHasAUniqueRealType = (arr: any[]): boolean => {
+const everyItemHasAUniqueRealType = (arr: unknown[]): boolean => {
     // Return true if there are no items in array
     // with the same real type
     const realTypesArray: string[] = getRealTypesOfItems(arr);
     return new Set(realTypesArray).size === realTypesArray.length;
 };
 
-const countRealTypes = (arr: any[]): [string, number][] => {
+const countRealTypes = (arr: unknown[]): [string, number][] => {
     // Return an array of arrays with a type and count of items
     // with this type in the input array, sorted by type.
     // Like an Object.entries() result: [['boolean', 3], ['string', 5]]
@@ -91,7 +91,7 @@ const countRealTypes = (arr: any[]): [string, number][] => {
         [key: string]: number;
     }
     const resultData: iResultData = {};
-    arr.forEach((elem: any) => {
+    arr.forEach((elem: unknown) => {
         const type: string = getRealType(elem);
         if (!resultData[type]) {
             resultData[type] = 1;
@@ -228,14 +228,14 @@ test('Counted unique types are sorted', countRealTypes([{}, null, true, !null, !
 
 // Add several positive and negative tests
 
-const everyItemIsNaN = (arr: any[]) => {
+const everyItemIsNaN = (arr: unknown[]) => {
     // Return true if all items are NaN
-    return arr.every((item: any) => getRealType(item) === 'NaN');
+    return arr.every((item: unknown) => getRealType(item) === 'NaN');
 };
 
-const everyItemIsFinite = (arr: any[]) => {
+const everyItemIsFinite = (arr: unknown[]) => {
     // Return true if all items are finite
-    return arr.every((item: any) => Number.isFinite(item));
+    return arr.every((item: unknown) => Number.isFinite(item));
 };
 
 testBlock('myTestAllAreNaN');
